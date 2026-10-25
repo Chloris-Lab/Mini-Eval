@@ -113,5 +113,9 @@ def run_suite(
     }
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     directory = Path(results_dir) / model.name / suite.name / stamp
+    n = 1
+    while directory.exists():
+        n += 1
+        directory = Path(results_dir) / model.name / suite.name / f"{stamp}-{n}"
     save_run(directory, results, meta)
     return directory

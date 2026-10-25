@@ -39,7 +39,7 @@ def cmd_run(args):
         out = run_suite(registry[name], suite, args.device, args.allow_unpinned, args.require_clean)
         print(f"saved -> {out}")
     if not args.no_report:
-        print(f"saved -> {build_report(suite.name)} (+ vs_tokens / vs_params PNGs)")
+        print(f"saved -> {build_report(suite.name)} (+ plots, HTML report + history archive)")
 
 
 def cmd_check(args):
@@ -54,7 +54,7 @@ def cmd_check(args):
 def cmd_report(args):
     from mini_eval.report import build_report
 
-    print(f"saved -> {build_report(args.suite)}")
+    print(f"saved -> {build_report(args.suite)} (+ plots, HTML report; previous versions archived under reports/history/)")
 
 
 def main():
