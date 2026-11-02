@@ -102,6 +102,13 @@ def test_registry_loads_expected_models():
     assert smol.params == 134_515_008
     assert smol.non_embedding_params == 134_515_008 - 49_152 * 576
     assert smol.max_length is None
+    gemma = registry["gemma-3-270m"]
+    assert gemma.kind == "hf"
+    assert gemma.pretrained == "google/gemma-3-270m"
+    assert gemma.revision == "9b0cfec892e2bc2afd938c98eabe4e4a7b1e0ca1"
+    assert gemma.params == 268_098_176
+    assert gemma.non_embedding_params == 100_326_016
+    assert gemma.max_length == 8192
     assert all(m.pretrained and m.revision for m in registry.values() if m.kind == "hf")
     natives = [m for m in registry.values() if m.kind == "native"]
     assert natives, "no native models registered"
