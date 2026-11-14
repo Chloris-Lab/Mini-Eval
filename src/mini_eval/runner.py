@@ -45,6 +45,10 @@ def build_target(model, device, batch_size, allow_unpinned):
         args = f"pretrained={model.pretrained},revision={model.revision},dtype=float32"
         if model.max_length:
             args += f",max_length={model.max_length}"
+        if model.subfolder:
+            args += f",subfolder={model.subfolder}"
+        if model.trust_remote_code:
+            args += ",trust_remote_code=True"
         return {"model": "hf", "model_args": args}, {}
     from mini_eval.backend import NativeLM
 

@@ -24,10 +24,13 @@ class Model:
     pretrained: str | None = None
     revision: str | None = None
     max_length: int | None = None
+    subfolder: str | None = None
+    trust_remote_code: bool = False
     checkpoint: str | None = None
     tokenizer: str | None = None
     sha256: str | None = None
     tokenizer_sha256: str | None = None
+    group: str | None = None
 
 
 @dataclass
@@ -52,6 +55,10 @@ def load_registry(path=REGISTRY_PATH):
     models = {}
     for entry in entries:
         model = Model(**entry)
+        if model.group is None:
+            model.group = "mini" if model.kind == "native" else "references"
+        if model.group not in ("mini", "references"):
+            raise ValueError(f"{model.name}: group must be 'mini' or 'references'")
         if model.name in models:
             raise ValueError(f"Duplicate model name: {model.name}")
         if model.kind == "hf" and not (model.pretrained and model.revision):

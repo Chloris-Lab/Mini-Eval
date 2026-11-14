@@ -1,6 +1,7 @@
 models:
   - name: pythia-70m-step143000
     kind: hf
+    group: references
     family: pythia-70m
     pretrained: EleutherAI/pythia-70m
     revision: step143000
@@ -10,6 +11,7 @@ models:
 
   - name: pythia-160m-step143000
     kind: hf
+    group: references
     family: pythia-160m
     pretrained: EleutherAI/pythia-160m
     revision: step143000
@@ -19,10 +21,11 @@ models:
 
   - name: SmolLM2-135M
     kind: hf
+    group: references
     family: SmolLM2-135M
     pretrained: HuggingFaceTB/SmolLM2-135M
     revision: 93efa2f097d58c2a74874c7e644dbc9b0cee75a2
-    # Protocol v2: runs at its native 8192-token context on the GPU server
+    # Protocol v3: runs at its native 8192-token context on the GPU server
     # (v1 capped it at 2048 because the eval machine could not fit 8192).
     params: 134515008
     non_embedding_params: 106203456
@@ -30,6 +33,7 @@ models:
 
   - name: gemma-3-270m
     kind: hf
+    group: references
     family: gemma-3-270m
     pretrained: google/gemma-3-270m
     revision: 9b0cfec892e2bc2afd938c98eabe4e4a7b1e0ca1
@@ -38,44 +42,26 @@ models:
     tokens_seen: 6000000000000
     max_length: 8192
 
-  - name: mini-llm-40M-35096steps
-    kind: native
-    family: mini-llm-40M
-    checkpoint: 32k/40M/mini-llm-base-40M-35096steps.pt
-    tokenizer: 32k/tok.json
-    sha256: 5822885064431e58129e0f3ab079fd188920aaec973eee1e6d9e94d52816d880
-    tokenizer_sha256: f35677bad9e5f15da8f9842cc8c13cd9009ad86b498ffa4c59ebf46f3c88ade9
-    params: 42476032
-    non_embedding_params: 25698816
-    tokens_seen: 4600268800
-
-  - name: mini-llm-70M-22000steps
-    kind: native
-    family: mini-llm-70M
-    checkpoint: 16k/mini-llm-base-70M-22000steps.pt
-    sha256: 97d3fc38784a97502e2180285660698f5da08ea2a91486323fac77de1076d5fb
-    tokenizer_sha256: d527f10c1f3ca5f7299c28c167b9804d65832ecf7ae64460351194523cd25181
-    params: 69975680
-    non_embedding_params: 59489920
-    tokens_seen: 1441792000
-
-  - name: mini-llm-150M-34332steps
-    kind: native
+  - name: mini-llm-150M-base
+    kind: hf
+    group: mini
     family: mini-llm-150M
-    checkpoint: 32k/150M/mini-llm-base-150M-34332steps.pt
-    tokenizer: 32k/tok.json
-    sha256: 735c9e62572a689c4796ceb21ce5a2edd8b2559196e81ee71250c1814b9d4eff
-    tokenizer_sha256: f35677bad9e5f15da8f9842cc8c13cd9009ad86b498ffa4c59ebf46f3c88ade9
+    pretrained: GautierP/MiniLLM-150M
+    subfolder: base
+    trust_remote_code: true
+    revision: 6c218a122ce1a410bbe3cf5afe4b8504ae6e8684
     params: 152596224
     non_embedding_params: 127430400
     tokens_seen: 4499963904
 
-  # 150M 1.1: digit-split tokenizer, ctx 2048, ~7.0B tokens. Uncomment and fill the
-  # two sha256 fields with `mini-eval fingerprint` once the base checkpoint exists.
-  # - name: mini-llm-150M-1.1
+  # Petal 1 150M (only native model evaluated, replaces the 1.0 teacher in the
+  # line-up once it exists). Uncomment and fill the two sha256 fields with
+  # `mini-eval fingerprint` once the base checkpoint exists.
+  # - name: petal-1-150M
   #   kind: native
-  #   family: mini-llm-150M-1.1
-  #   checkpoint: digit32k/150M/mini-llm-base-150M-53375steps.pt
+  #   group: mini
+  #   family: petal-1
+  #   checkpoint: digit32k/150M/petal-1-150M-base-53375steps.pt
   #   tokenizer: digit32k/tok.json
   #   sha256: <fill>
   #   tokenizer_sha256: <fill>
