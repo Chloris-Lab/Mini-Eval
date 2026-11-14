@@ -13,3 +13,4 @@ tasks:
   - {name: sciq, primary: acc_norm, chance: 0.25}
   - {name: lambada_openai, primary: acc, chance: 0.0}
   - {name: wikitext, primary: bits_per_byte, chance: null}
+  - {name: gsm8k_cot_zeroshot, primary: 'exact_match,flexible-extract', chance: 0.0}

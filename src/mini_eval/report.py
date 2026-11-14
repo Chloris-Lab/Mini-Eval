@@ -22,6 +22,9 @@ def number(value):
 
 def metric(results, task, name):
     entry = results["results"].get(task, {})
+    if "," in name:
+        base, specific = name.split(",", 1)
+        return number(entry.get(name)), number(entry.get(f"{base}_stderr,{specific}"))
     return number(entry.get(f"{name},none")), number(entry.get(f"{name}_stderr,none"))
 
 
@@ -227,7 +230,7 @@ def svg_chart(task, rows, x_attr):
     )
 
 
-def html_report(suite, rows, out_path):
+def html_report(suite, rows, out_path, stem=None):
     """Self-contained HTML report: dark theme, one interactive chart per task,
     on two axes (tokens seen and non-embedding parameters)."""
     legend_chips = []
@@ -307,21 +310,24 @@ tr:last-child td {{ color:#8aa0b4; }}
 {section('tokens_seen', 'tokens seen')}
 <h2>Score against non-embedding parameters</h2>
 {section('non_embedding_params', 'non-embedding parameters')}
-<p class="meta">Static PNG versions live next to this file (<code>{html.escape(suite.name)}_vs_tokens.png</code>, <code>{html.escape(suite.name)}_vs_params.png</code>); older reports are archived under <code>history/</code>.</p>
+<p class="meta">Static PNG versions live next to this file (<code>{html.escape(stem)}_vs_tokens.png</code>, <code>{html.escape(stem)}_vs_params.png</code>); older reports are archived under <code>history/</code>.</p>
 </main></body></html>
 """
     out_path.write_text(doc, encoding="utf-8")
     return out_path
 
 
-def archive_report(suite_name, reports_dir=REPORTS_DIR):
-    """Move the current report + plots to reports/history/<suite>/<stamp>/."""
-    md = reports_dir / f"{suite_name}.md"
-    pngs = [reports_dir / f"{suite_name}_{kind}.png" for kind in ("vs_tokens", "vs_params")]
-    existing = [p for p in (md, *pngs) if p.exists()]
+def archive_report(suite_name, reports_dir=REPORTS_DIR, suffixes=("", "_private", "_public")):
+    """Move the current report + plots (all views) to reports/history/<suite>/<stamp>/."""
+    existing = []
+    for suffix in suffixes:
+        md = reports_dir / f"{suite_name}{suffix}.md"
+        pngs = [reports_dir / f"{suite_name}{suffix}_{kind}.png" for kind in ("vs_tokens", "vs_params")]
+        html = reports_dir / f"{suite_name}{suffix}.html"
+        existing += [p for p in (md, *pngs, html) if p.exists()]
     if not existing:
         return None
-    stamp = time.strftime("%Y%m%d-%H%M%S", time.localtime(md.stat().st_mtime))
+    stamp = time.strftime("%Y%m%d-%H%M%S", time.localtime(existing[0].stat().st_mtime))
     dest = reports_dir / "history" / suite_name / stamp
     n = 1
     while dest.exists():
@@ -333,17 +339,10 @@ def archive_report(suite_name, reports_dir=REPORTS_DIR):
     return dest
 
 
-def build_report(suite_name, results_dir=RESULTS_DIR, reports_dir=REPORTS_DIR, registry=None, suites_dir=SUITES_DIR):
-    registry = registry or load_registry()
-    suite = load_suite(suite_name, suites_dir)
-    rows = collect(suite, registry, results_dir)
-    if not rows:
-        raise SystemExit(f"No results for suite {suite_name!r}. Run `mini-eval run {suite_name} MODEL` first.")
-    reports_dir.mkdir(parents=True, exist_ok=True)
-    archived = archive_report(suite.name, reports_dir)
-    tokens_png = plot_scores(suite, rows, "tokens_seen", "tokens seen", reports_dir / f"{suite.name}_vs_tokens.png")
+def write_report(suite, rows, reports_dir, stem):
+    tokens_png = plot_scores(suite, rows, "tokens_seen", "tokens seen", reports_dir / f"{stem}_vs_tokens.png")
     params_png = plot_scores(
-        suite, rows, "non_embedding_params", "non-embedding parameters", reports_dir / f"{suite.name}_vs_params.png"
+        suite, rows, "non_embedding_params", "non-embedding parameters", reports_dir / f"{stem}_vs_params.png"
     )
     meta = rows[0]["meta"]
     parts = [
@@ -367,10 +366,29 @@ def build_report(suite_name, results_dir=RESULTS_DIR, reports_dir=REPORTS_DIR, r
     parts += [
         f"Previous versions of this report (with their plots) are archived under "
         f"`history/{suite.name}/`, sorted by generation date. An interactive version "
-        f"with tooltips lives in [{suite.name}.html]({suite.name}.html).",
+        f"with tooltips lives in [{stem}.html]({stem}.html).",
         "",
     ]
-    out = reports_dir / f"{suite.name}.md"
+    out = reports_dir / f"{stem}.md"
     out.write_text("\n".join(parts))
-    html_report(suite, rows, reports_dir / f"{suite.name}.html")
+    html_report(suite, rows, reports_dir / f"{stem}.html", stem)
     return out
+
+
+def build_report(suite_name, results_dir=RESULTS_DIR, reports_dir=REPORTS_DIR, registry=None, suites_dir=SUITES_DIR):
+    registry = registry or load_registry()
+    suite = load_suite(suite_name, suites_dir)
+    rows_all = collect(suite, registry, results_dir)
+    if not rows_all:
+        raise SystemExit(f"No results for suite {suite.name!r}. Run `mini-eval run {suite.name} MODEL` first.")
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    archive_report(suite.name, reports_dir)
+    views = [
+        ("private", rows_all),
+        ("public", [r for r in rows_all if r["model"].group != "mini"]),
+    ]
+    written = []
+    for suffix, rows in views:
+        if rows:
+            written.append(write_report(suite, rows, reports_dir, f"{suite.name}_{suffix}"))
+    return written[0] if written else None
