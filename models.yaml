@@ -57,7 +57,7 @@ models:
   # Petal 1 150M (native model evaluated; replaces the 1.0 teacher in the
   # line-up). The two sha256 fields are pinned by `mini-eval fingerprint`
   # before the first run.
-  - name: petal-1-150M
+  - name: petal-1-150M-base
     kind: native
     group: mini
     family: petal-1
@@ -68,7 +68,7 @@ models:
     params: 152596224
     non_embedding_params: 127430400
     tokens_seen: 6995968000
-  - name: petal-1-150M-assistant
+  - name: petal-1-150M
     kind: native
     group: mini
     family: petal-1
