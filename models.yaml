@@ -68,3 +68,14 @@ models:
     params: 152596224
     non_embedding_params: 127430400
     tokens_seen: 6995968000
+  - name: petal-1-150M-assistant
+    kind: native
+    group: mini
+    family: petal-1
+    checkpoint: digit32k/150M/petal-1-150M.pt
+    tokenizer: digit32k/tok.json
+    sha256: <fill>
+    tokenizer_sha256: 32d8c68e068683af042b9b3fb9de7df2a3e1ba2d4fde0d58b6eda59917aaca99
+    params: 152596224
+    non_embedding_params: 127430400
+    tokens_seen: 6995968000
