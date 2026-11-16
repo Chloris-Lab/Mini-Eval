@@ -54,17 +54,17 @@ models:
     non_embedding_params: 127430400
     tokens_seen: 4499963904
 
-  # Petal 1 150M (only native model evaluated, replaces the 1.0 teacher in the
-  # line-up once it exists). Uncomment and fill the two sha256 fields with
-  # `mini-eval fingerprint` once the base checkpoint exists.
-  # - name: petal-1-150M
-  #   kind: native
-  #   group: mini
-  #   family: petal-1
-  #   checkpoint: digit32k/150M/petal-1-150M-base-53375steps.pt
-  #   tokenizer: digit32k/tok.json
-  #   sha256: <fill>
-  #   tokenizer_sha256: <fill>
-  #   params: 152596224
-  #   non_embedding_params: 127430400
-  #   tokens_seen: 6995968000
+  # Petal 1 150M (native model evaluated; replaces the 1.0 teacher in the
+  # line-up). The two sha256 fields are pinned by `mini-eval fingerprint`
+  # before the first run.
+  - name: petal-1-150M
+    kind: native
+    group: mini
+    family: petal-1
+    checkpoint: digit32k/150M/petal-1-150M-base-53375steps.pt
+    tokenizer: digit32k/tok.json
+    sha256: <fill>
+    tokenizer_sha256: <fill>
+    params: 152596224
+    non_embedding_params: 127430400
+    tokens_seen: 6995968000

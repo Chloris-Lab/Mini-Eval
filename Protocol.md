@@ -47,7 +47,7 @@ The primary metric of each task is declared in `suites/small_lm.yaml` before any
   size of 4 is memory-safe at.
 - **Native models** are identified by the SHA-256 of the checkpoint and of `tok.json`,
   stored in `models.yaml`. A run is refused if the files on disk do not match.
-- `mini-llm-150M-base` evaluates the repository's own 150M from the Hugging Face Hub (`GautierP/MiniLLM-150M`, `base/` subfolder, pinned at `6c218a122ce1a410bbe3cf5afe4b8504ae6e8684`, `trust_remote_code: true`). The native legacy Mini checkpoints are not evaluated anymore; the upcoming `petal-1-150M` will be added to the line-up once it exists.
+- `mini-llm-150M-base` evaluates the repository's own 150M from the Hugging Face Hub (`GautierP/MiniLLM-150M`, `base/` subfolder, pinned at `6c218a122ce1a410bbe3cf5afe4b8504ae6e8684`, `trust_remote_code: true`) — legacy 1.0 model, kept for reference. The mini model of this protocol is the native **`petal-1-150M`** (`kind: native`, `digit32k/150M/petal-1-150M-base-53375steps.pt`), pinned by the SHA-256 of the checkpoint and of `digit32k/tok.json` in `models.yaml`. The native legacy Mini checkpoints are not evaluated anymore.
 - Every model runs at its **native context length**, or at 8192 tokens when its native context is wider (`gemma-3-270m`); the value is recorded in the run metadata.
 - Size is described by **non-embedding parameters** as well as total parameters, because embeddings are a very different share of the total from one model to another.
 
