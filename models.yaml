@@ -74,7 +74,7 @@ models:
     family: petal-1
     checkpoint: digit32k/150M/petal-1-150M.pt
     tokenizer: digit32k/tok.json
-    sha256: <fill>
+    sha256: 01a35069e7ca2098d641392fa693e791cfd8723f78a426a9d6597357fe958e48
     tokenizer_sha256: 32d8c68e068683af042b9b3fb9de7df2a3e1ba2d4fde0d58b6eda59917aaca99
     params: 152596224
     non_embedding_params: 127430400
