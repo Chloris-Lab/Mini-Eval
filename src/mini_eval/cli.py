@@ -39,7 +39,7 @@ def cmd_run(args):
         out = run_suite(registry[name], suite, args.device, args.allow_unpinned, args.require_clean)
         print(f"saved -> {out}")
     if not args.no_report:
-        print(f"saved -> reports/{suite.name}_private.md (+ plots, HTML) and reports/{suite.name}_public.md (+ plots, HTML; history archived under reports/history/)")
+        print(f"saved -> {build_report(suite)} (+ plots, HTML report; previous versions archived under reports/history/)")
 
 
 
