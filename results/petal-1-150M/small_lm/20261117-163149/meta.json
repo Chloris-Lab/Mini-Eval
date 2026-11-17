@@ -1,0 +1,101 @@
+{
+  "protocol": 3,
+  "model": {
+    "name": "petal-1-150M",
+    "kind": "native",
+    "family": "petal-1",
+    "params": 152596224,
+    "non_embedding_params": 127430400,
+    "tokens_seen": 6995968000,
+    "pretrained": null,
+    "revision": null,
+    "max_length": null,
+    "subfolder": null,
+    "trust_remote_code": false,
+    "checkpoint": "digit32k/150M/petal-1-150M.pt",
+    "tokenizer": "digit32k/tok.json",
+    "sha256": "fd1273015e04a422a669aa85bc5971d0464e3d766b71142ac2d01cdf2f6f5df4",
+    "tokenizer_sha256": "32d8c68e068683af042b9b3fb9de7df2a3e1ba2d4fde0d58b6eda59917aaca99",
+    "group": "mini"
+  },
+  "suite": {
+    "name": "small_lm",
+    "description": "Zero-shot suite chosen to give signal on models under 1B parameters.",
+    "num_fewshot": 0,
+    "limit": null,
+    "batch_size": 4,
+    "tasks": [
+      {
+        "name": "hellaswag",
+        "primary": "acc_norm",
+        "chance": 0.25
+      },
+      {
+        "name": "arc_easy",
+        "primary": "acc_norm",
+        "chance": 0.25
+      },
+      {
+        "name": "arc_challenge",
+        "primary": "acc_norm",
+        "chance": 0.25
+      },
+      {
+        "name": "piqa",
+        "primary": "acc_norm",
+        "chance": 0.5
+      },
+      {
+        "name": "winogrande",
+        "primary": "acc",
+        "chance": 0.5
+      },
+      {
+        "name": "openbookqa",
+        "primary": "acc_norm",
+        "chance": 0.25
+      },
+      {
+        "name": "sciq",
+        "primary": "acc_norm",
+        "chance": 0.25
+      },
+      {
+        "name": "lambada_openai",
+        "primary": "acc",
+        "chance": 0.0
+      },
+      {
+        "name": "wikitext",
+        "primary": "bits_per_byte",
+        "chance": null
+      },
+      {
+        "name": "gsm8k_cot_zeroshot",
+        "primary": "exact_match,flexible-extract",
+        "chance": 0.0
+      }
+    ]
+  },
+  "device": "cuda",
+  "fingerprint": {
+    "sha256": "fd1273015e04a422a669aa85bc5971d0464e3d766b71142ac2d01cdf2f6f5df4",
+    "tokenizer_sha256": "32d8c68e068683af042b9b3fb9de7df2a3e1ba2d4fde0d58b6eda59917aaca99"
+  },
+  "lm_eval": "0.4.13",
+  "python": "3.11.13",
+  "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+  "torch": "2.14.1",
+  "transformers": "5.19.0",
+  "mini_eval": {
+    "commit": "dffcdd00ebb35073f3679c7d384002d94166138f",
+    "dirty": false
+  },
+  "mini_llm": {
+    "version": "0.2.0",
+    "commit": "18d219f1eb949e3295f22cbf86ec4296dbdae29c",
+    "dirty": false
+  },
+  "date": "2026-11-17T16:31:49",
+  "duration_seconds": 4839.2
+}
