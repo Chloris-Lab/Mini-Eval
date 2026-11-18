@@ -102,6 +102,22 @@ def plot_scores(suite, rows, x_attr, xlabel, out_path):
     tasks = [t for t in suite.tasks if any(r["scores"][t.name][0] is not None for r in rows)]
     if not tasks:
         return None
+    plt.rcParams.update(
+        {
+            "figure.facecolor": "#060709",
+            "axes.facecolor": "#101218",
+            "axes.edgecolor": "#1f242e",
+            "axes.labelcolor": "#f5f3ec",
+            "text.color": "#f5f3ec",
+            "xtick.color": "#9a968c",
+            "ytick.color": "#9a968c",
+            "grid.color": "#1c1f26",
+            "legend.facecolor": "#101218",
+            "legend.edgecolor": "#1f242e",
+            "legend.labelcolor": "#f5f3ec",
+        }
+    )
+    colors = family_colors(rows)
     cols = min(3, len(tasks))
     nrows = -(-len(tasks) // cols)
     fig, axes = plt.subplots(nrows, cols, figsize=(4.6 * cols, 3.6 * nrows), squeeze=False)
@@ -118,18 +134,18 @@ def plot_scores(suite, rows, x_attr, xlabel, out_path):
             xs = [p[0] for p in points]
             ys = [p[1][0] for p in points]
             errs = [p[1][1] or 0 for p in points]
-            ax.errorbar(xs, ys, yerr=errs, marker="o", capsize=3, label=family)
+            ax.errorbar(xs, ys, yerr=errs, marker="o", capsize=3, label=family, color=colors[family])
         if task.chance is not None:
-            ax.axhline(task.chance, linestyle="--", color="gray", linewidth=1)
+            ax.axhline(task.chance, linestyle="--", color="#d19c00", linewidth=1)
         ax.set_xscale("log")
         ax.set_title(f"{task.name} ({task.primary})", fontsize=10)
         ax.set_xlabel(xlabel)
-        ax.grid(alpha=0.3)
+        ax.grid(alpha=0.5)
     for ax in list(axes.flat)[len(tasks) :]:
         ax.axis("off")
     axes.flat[0].legend(fontsize=8)
     fig.tight_layout()
-    fig.savefig(out_path, dpi=130)
+    fig.savefig(out_path, dpi=130, facecolor="#060709")
     plt.close(fig)
     return out_path
 
@@ -142,7 +158,26 @@ def human_number(n):
     return f"{n:.4g}"
 
 
-FAMILY_COLORS = ["#4ea1ff", "#f39c6b", "#7bd88f", "#c07bf5", "#f5c15c", "#ff7b7b", "#6fe0c8"]
+REFERENCE_RAMP = ["#c7ccd6", "#898f9b", "#5f646d", "#3f444d"]
+MINI_COLORS = ["#ffd21d", "#ffe066", "#d19c00", "#cbb418"]
+
+
+def family_colors(rows):
+    """Benchmark-style two-tone DA: mini families in Chloris yellow, references in gray ramp."""
+    colors = {}
+    reference = 0
+    mini = 0
+    for r in rows:
+        family = r["model"].family
+        if family in colors:
+            continue
+        if r["model"].group == "mini":
+            colors[family] = MINI_COLORS[mini % len(MINI_COLORS)]
+            mini += 1
+        else:
+            colors[family] = REFERENCE_RAMP[reference % len(REFERENCE_RAMP)]
+            reference += 1
+    return colors
 
 
 def svg_chart(task, rows, x_attr):
@@ -165,6 +200,7 @@ def svg_chart(task, rows, x_attr):
     if not points:
         return None
 
+    colors = family_colors(rows)
     xmin = min(p["x"] for p in points) * 0.7
     xmax = max(p["x"] for p in points) * 1.4
     yhi = max(p["y"] + p["e"] for p in points) * 1.15
@@ -186,28 +222,28 @@ def svg_chart(task, rows, x_attr):
     while t <= xmax * 1.05:
         if t >= xmin * 0.95:
             xx = X(t)
-            els.append(f'<line x1="{xx:.1f}" y1="{MT}" x2="{xx:.1f}" y2="{H - MB}" stroke="#232c38" stroke-width="1"/>')
+            els.append(f'<line x1="{xx:.1f}" y1="{MT}" x2="{xx:.1f}" y2="{H - MB}" stroke="#1f242e" stroke-width="1"/>')
             els.append(
-                f'<text x="{xx:.1f}" y="{H - MB + 20}" fill="#8aa0b4" font-size="11" text-anchor="middle">{human_number(t)}</text>'
+                f'<text x="{xx:.1f}" y="{H - MB + 20}" fill="#9a968c" font-size="11" text-anchor="middle">{human_number(t)}</text>'
             )
         t *= 10
     for i in range(6):
         yv = yhi * i / 5
         yy = Y(yv)
-        els.append(f'<line x1="{ML}" y1="{yy:.1f}" x2="{W - MR}" y2="{yy:.1f}" stroke="#1a222c" stroke-width="1"/>')
-        els.append(f'<text x="{ML - 8}" y="{yy + 4:.1f}" fill="#8aa0b4" font-size="11" text-anchor="end">{yv:.2g}</text>')
+        els.append(f'<line x1="{ML}" y1="{yy:.1f}" x2="{W - MR}" y2="{yy:.1f}" stroke="#15181d" stroke-width="1"/>')
+        els.append(f'<text x="{ML - 8}" y="{yy + 4:.1f}" fill="#9a968c" font-size="11" text-anchor="end">{yv:.2g}</text>')
     if task.chance is not None:
         yy = Y(task.chance)
-        els.append(f'<line x1="{ML}" y1="{yy:.1f}" x2="{W - MR}" y2="{yy:.1f}" stroke="#5a6b7c" stroke-width="1" stroke-dasharray="5 4"/>')
+        els.append(f'<line x1="{ML}" y1="{yy:.1f}" x2="{W - MR}" y2="{yy:.1f}" stroke="#d19c00" stroke-width="1" stroke-dasharray="5 4"/>')
         els.append(
-            f'<text x="{W - MR - 6}" y="{yy - 5:.1f}" fill="#71828f" font-size="10" text-anchor="end">chance {task.chance:g}</text>'
+            f'<text x="{W - MR - 6}" y="{yy - 5:.1f}" fill="#d19c00" font-size="10" text-anchor="end">chance {task.chance:g}</text>'
         )
     families = []
     for p in points:
         if p["family"] not in families:
             families.append(p["family"])
-    for index, family in enumerate(families):
-        color = FAMILY_COLORS[index % len(FAMILY_COLORS)]
+    for family in families:
+        color = colors[family]
         members = sorted((p for p in points if p["family"] == family), key=lambda p: p["x"])
         if len(members) > 1:
             path = " ".join(f"{X(p['x']):.1f},{Y(p['y']):.1f}" for p in members)
@@ -220,7 +256,7 @@ def svg_chart(task, rows, x_attr):
                 f"{p['name']} — {task.name}: {p['y']:.3f} ± {p['e']:.3f} ({p['date'] or 'date unknown'})"
             )
             els.append(
-                f'<circle cx="{xx:.1f}" cy="{yy:.1f}" r="5" fill="{color}" stroke="#0d1117" stroke-width="1.5"><title>{tooltip}</title></circle>'
+                f'<circle cx="{xx:.1f}" cy="{yy:.1f}" r="5" fill="{color}" stroke="#060709" stroke-width="1.5"><title>{tooltip}</title></circle>'
             )
     title = html.escape(f"{task.name} — {task.primary}")
     return (
@@ -231,15 +267,16 @@ def svg_chart(task, rows, x_attr):
 
 
 def html_report(suite, rows, out_path, stem=None):
-    """Self-contained HTML report: dark theme, one interactive chart per task,
-    on two axes (tokens seen and non-embedding parameters)."""
+    """Self-contained HTML report: Chloris DA (deep black + yellow), one interactive
+    chart per task, on two axes (tokens seen and non-embedding parameters). Responsive."""
     legend_chips = []
+    colors = family_colors(rows)
     families = []
     for r in rows:
         if r["model"].family not in families:
             families.append(r["model"].family)
-    for index, family in enumerate(families):
-        color = FAMILY_COLORS[index % len(FAMILY_COLORS)]
+    for family in families:
+        color = colors[family]
         legend_chips.append(
             f'<span class="chip"><span class="dot" style="background:{color}"></span>{html.escape(family)}</span>'
         )
@@ -259,7 +296,7 @@ def html_report(suite, rows, out_path, stem=None):
                 f"<p class='axis'>{html.escape(xlabel)} (log) {note}</p>"
                 "</section>"
             )
-        return f"<div class='legend'>{legend}</div>" + "\n".join(cards)
+        return f"<div class='legend'>{legend}</div><div class='grid'>" + "\n".join(cards) + "</div>"
 
     md_table = markdown_table(suite, rows)
     md_rows = [line for line in md_table.splitlines() if line.startswith("|")]
@@ -269,11 +306,11 @@ def html_report(suite, rows, out_path, stem=None):
         for line in md_rows[2:]
     ]
     table = (
-        "<table><thead><tr>"
+        "<div class='table-scroll'><table><thead><tr>"
         + "".join(f"<th>{html.escape(c)}</th>" for c in head)
         + "</tr></thead><tbody>"
         + "".join("<tr>" + "".join(f"<td>{html.escape(c)}</td>" for c in cells) + "</tr>" for cells in body)
-        + "</tbody></table>"
+        + "</tbody></table></div>"
     )
     meta = rows[0]["meta"]
     generated = time.strftime("%Y-%m-%d %H:%M")
@@ -282,25 +319,43 @@ def html_report(suite, rows, out_path, stem=None):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Results: {html.escape(suite.name)}</title>
 <style>
-:root {{ color-scheme: dark; }}
-body {{ margin:0; background:#0d1117; color:#dbe6f1; font:14px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; }}
+:root {{ color-scheme: dark; --bg:#060709; --panel:#101218; --panel-2:#131720; --border:#1f242e; --grid:#15181d; --text:#f5f3ec; --muted:#9a968c; --accent:#ffd21d; --accent-soft:#ffe066; --amber:#d19c00; }}
+* {{ box-sizing:border-box; }}
+body {{ margin:0; background:var(--bg); color:var(--text); font:14px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; -webkit-font-smoothing:antialiased; }}
+::selection {{ background:var(--accent); color:var(--bg); }}
+a {{ color:var(--accent); }}
+:focus-visible {{ outline:2px solid var(--accent); outline-offset:2px; }}
 main {{ max-width:1180px; margin:0 auto; padding:32px 20px 64px; }}
-h1 {{ font-size:26px; margin:0 0 6px; }}
-h2 {{ font-size:19px; margin:34px 0 12px; color:#e6eef6; }}
-h3 {{ font-size:15px; margin:0 0 10px; color:#e6eef6; }}
-.metric {{ color:#8aa0b4; font-weight:400; font-size:12px; }}
-.card {{ background:#131a23; border:1px solid #232c38; border-radius:12px; padding:18px 18px 12px; }}
-.grid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(560px,1fr)); gap:16px; }}
+h1 {{ font-size:26px; margin:0 0 6px; letter-spacing:-0.01em; display:inline-block; padding-bottom:10px; border-bottom:3px solid var(--accent); }}
+h2 {{ font-size:19px; margin:36px 0 14px; color:var(--text); padding-left:12px; border-left:3px solid var(--accent); }}
+h3 {{ font-size:15px; margin:0 0 10px; color:var(--text); }}
+code {{ background:#181b21; border:1px solid var(--border); padding:1px 6px; border-radius:5px; color:var(--accent-soft); font-size:12px; }}
+.metric {{ color:var(--muted); font-weight:400; font-size:12px; }}
+.card {{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:18px 18px 12px; box-shadow:0 12px 32px rgba(0,0,0,.35); }}
+.grid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,480px),1fr)); gap:16px; }}
 .legend {{ display:flex; flex-wrap:wrap; gap:10px; margin:0 0 14px; }}
-.chip {{ display:inline-flex; align-items:center; gap:7px; background:#131a23; border:1px solid #232c38; border-radius:999px; padding:4px 12px; font-size:12px; color:#c4d2df; }}
+.chip {{ display:inline-flex; align-items:center; gap:7px; background:var(--panel); border:1px solid var(--border); border-radius:999px; padding:4px 12px; font-size:12px; color:#d8d5cc; }}
 .dot {{ width:9px; height:9px; border-radius:50%; display:inline-block; }}
-.axis {{ color:#8aa0b4; font-size:12px; margin:6px 0 0; }}
+.axis {{ color:var(--muted); font-size:12px; margin:6px 0 0; }}
+.table-scroll {{ overflow-x:auto; -webkit-overflow-scrolling:touch; background:var(--panel); border:1px solid var(--border); border-radius:14px; box-shadow:0 12px 32px rgba(0,0,0,.35); }}
 table {{ border-collapse:collapse; width:100%; font-size:12.5px; }}
-th,td {{ border-bottom:1px solid #232c38; padding:7px 10px; text-align:left; white-space:nowrap; }}
-th {{ color:#8aa0b4; font-weight:600; }}
-tr:last-child td {{ color:#8aa0b4; }}
-.meta {{ color:#8aa0b4; font-size:12.5px; }}
+th,td {{ border-bottom:1px solid var(--border); padding:9px 12px; text-align:left; white-space:nowrap; }}
+tr:last-child td {{ border-bottom:none; }}
+th {{ color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.04em; font-size:10.5px; }}
+tr:last-child td {{ color:var(--muted); }}
+tbody tr:hover {{ background:var(--panel-2); }}
+.meta {{ color:var(--muted); font-size:12.5px; }}
 .card p {{ margin:8px 0 0; }}
+@media (max-width:640px) {{
+  main {{ padding:20px 12px 48px; }}
+  h1 {{ font-size:21px; padding-bottom:8px; }}
+  h2 {{ font-size:16px; margin:28px 0 12px; padding-left:10px; }}
+  h3 {{ font-size:14px; }}
+  .card {{ padding:14px 14px 10px; border-radius:12px; }}
+  .chip {{ font-size:11px; padding:3px 10px; }}
+  table {{ font-size:11.5px; }}
+  th,td {{ padding:7px 9px; }}
+}}
 </style></head><body><main>
 <h1>Results: {html.escape(suite.name)}</h1>
 <p class="meta">{html.escape(suite.description)}</p>
