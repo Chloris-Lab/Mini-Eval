@@ -31,6 +31,7 @@ class Model:
     sha256: str | None = None
     tokenizer_sha256: str | None = None
     group: str | None = None
+    public: bool = False
 
 
 @dataclass

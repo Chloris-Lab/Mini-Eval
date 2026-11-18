@@ -2,7 +2,7 @@
 
 These choices are fixed so that every number in this repository is comparable with the others. Anything that changes a score changes the protocol version (`PROTOCOL_VERSION` in `src/mini_eval/__init__.py`), and every model, references included, is then evaluated again.
 
-**What changed in v3:** the suite gains `gsm8k_cot_zeroshot` (0-shot GSM8K — `Q: …` / `A: Let's think step by step.` prompt, greedy until the next `Q:` marker, `exact_match,flexible-extract`), the Mini line-up is reduced to a single native-equivalent model (`mini-llm-150M-base`, `GautierP/MiniLLM-150M` under `base/`, pinned at `6c218a1`), the legacy native entries are removed, and the training corpus is decontaminated with an n-gram filter before any published number is produced (see [Data preparation](#data-preparation)). The report is generated in two renderings — `_private.md` (all models) and `_public.md` (references only) — from the same runs, both committed in the repository.
+**What changed in v3:** the suite gains `gsm8k_cot_zeroshot` (0-shot GSM8K — `Q: …` / `A: Let's think step by step.` prompt, greedy until the next `Q:` marker, `exact_match,flexible-extract`), the Mini line-up is reduced to a single native-equivalent model (`mini-llm-150M-base`, `GautierP/MiniLLM-150M` under `base/`, pinned at `6c218a1`), the legacy native entries are removed, and the training corpus is decontaminated with an n-gram filter before any published number is produced (see [Data preparation](#data-preparation)). The report is generated in two renderings — `_private.md` (all models) and `_public.md` (references plus the Petal release) — from the same runs, both committed in the repository.
 
 ## Fixed settings
 
@@ -51,10 +51,10 @@ The primary metric of each task is declared in `suites/small_lm.yaml` before any
 - Every model runs at its **native context length**, or at 8192 tokens when its native context is wider (`gemma-3-270m`); the value is recorded in the run metadata.
 - Size is described by **non-embedding parameters** as well as total parameters, because embeddings are a very different share of the total from one model to another.
 
-The registry entries carry a `group`: `references` (the HF line-up) or `mini` (the lab's models). `report small_lm` writes two renderings of the same runs, committed in the repository and archiving together on rerun:
+The registry entries carry a `group`: `references` (the HF line-up) or `mini` (the lab's models), plus an optional `public: true` flag. `report small_lm` writes two renderings of the same runs, committed in the repository and archiving together on rerun:
 
 - `reports/small_lm_private.md` (+ `_vs_tokens.png`, `_vs_params.png`, `.html`) — all registered models;
-- `reports/small_lm_public.md` (+ same suffixes) — references only.
+- `reports/small_lm_public.md` (+ same suffixes) — references plus Petal (`public: true`; mini-llm, its internal alpha, is excluded).
 
 ## Reading results
 

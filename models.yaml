@@ -55,11 +55,14 @@ models:
     tokens_seen: 4499963904
 
   # Petal 1 150M (native model evaluated; replaces the 1.0 teacher in the
-  # line-up). The two sha256 fields are pinned by `mini-eval fingerprint`
+  # line-up). Petal is the public release, so its two checkpoints are flagged
+  # `public: true` and appear in the `_public` report views; mini-llm-150M is
+  # the internal alpha and stays private. The two sha256 fields are pinned by `mini-eval fingerprint`
   # before the first run.
   - name: petal-1-150M-base
     kind: native
     group: mini
+    public: true
     family: petal-1
     checkpoint: digit32k/150M/petal-1-150M-base-53375steps.pt
     tokenizer: digit32k/tok.json
@@ -71,6 +74,7 @@ models:
   - name: petal-1-150M
     kind: native
     group: mini
+    public: true
     family: petal-1
     checkpoint: digit32k/150M/petal-1-150M.pt
     tokenizer: digit32k/tok.json

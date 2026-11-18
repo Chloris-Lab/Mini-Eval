@@ -440,7 +440,7 @@ def build_report(suite_name, results_dir=RESULTS_DIR, reports_dir=REPORTS_DIR, r
     archive_report(suite.name, reports_dir)
     views = [
         ("private", rows_all),
-        ("public", [r for r in rows_all if r["model"].group != "mini"]),
+        ("public", [r for r in rows_all if r["model"].group != "mini" or r["model"].public]),
     ]
     written = []
     for suffix, rows in views:
